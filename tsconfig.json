@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "es2015",
+      "esnext.asynciterable"
+    ],
+    "jsx": "react-native",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "types": [
+      "jest"
+    ]
+  },
+  "extends": "expo/tsconfig.base"
+}
