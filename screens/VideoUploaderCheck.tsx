@@ -51,14 +51,11 @@ const VideoRecorder = (): JSX.Element => {
         // console.log("binary data is", binaryData);
         const formData: any = new FormData();
         formData.append("file", {
-          binaryData
-          // uri: fileUri,
+          // binaryData
+          file: binaryData
           // name: fileName,
           // type: fileType
         });
-        // formData.append({
-        //   file: fileUri
-        // });
 
         const options: AxiosRequestConfig = {
           onUploadProgress: progressEvent => {
@@ -72,12 +69,42 @@ const VideoRecorder = (): JSX.Element => {
           }
         };
 
+        const file = formData._parts[0][1];
+        // const { uri } = formData._parts[0][1];
+        //
+        // let body = {
+        //   file: uri
+        // };
+
         console.log("form data", JSON.stringify(formData, null, 2));
         console.log("options", options);
+
+        axios
+          .post(
+            "https://mvai.qa.onroadvantage.com/api/analyse?models=Passenger%2CFatigueAudio&fps=5&orientation=right",
+            formData,
+            options
+          )
+          .then(res => {
+            console.log("res", res);
+            if (res.status === 200) {
+              setUploadProgress(1);
+              setVideo(null);
+              setRecording(false);
+            } else {
+              setUploadProgress(0);
+            }
+          })
+          .catch(error => {
+            setUploadProgress(0);
+            console.log("error response", error);
+          });
       })
       .catch(error => {
         console.log(error);
       });
+
+    console.log("uploading video", uploadProgress);
 
     // try {
     //   const response = await axios.post("https://example.com/upload", formData, options);
