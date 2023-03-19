@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Camera, CameraType } from "expo-camera";
 import { Video } from "expo-av";
 import axios, { AxiosRequestConfig } from "axios";
+import * as FileSystem from "expo-file-system";
 
 const VideoRecorder = (): JSX.Element => {
   const [type, setType] = useState(CameraType.back);
@@ -40,31 +41,43 @@ const VideoRecorder = (): JSX.Element => {
     const fileUri = video;
     const fileName = fileUri.split("/").pop();
     const fileType = "video/mp4";
+    let binaryData = "";
 
-    const formData: any = new FormData();
-    // formData.append("file", {
-    //   uri: fileUri,
-    //   name: fileName,
-    //   type: fileType
-    // });
-    formData.append({
-      file: fileUri
-    });
+    FileSystem.readAsStringAsync(fileUri, {
+      encoding: FileSystem.EncodingType.Base64
+    })
+      .then(binaryData => {
+        // use the binaryData for your desired purpose
+        // console.log("binary data is", binaryData);
+        const formData: any = new FormData();
+        formData.append("file", {
+          binaryData
+          // uri: fileUri,
+          // name: fileName,
+          // type: fileType
+        });
+        // formData.append({
+        //   file: fileUri
+        // });
 
-    const options: AxiosRequestConfig = {
-      onUploadProgress: progressEvent => {
-        // @ts-ignore
-        const progress = progressEvent.loaded / progressEvent.total;
-        setUploadProgress(progress);
-      },
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "multipart/form-data"
-      }
-    };
+        const options: AxiosRequestConfig = {
+          onUploadProgress: progressEvent => {
+            // @ts-ignore
+            const progress = progressEvent.loaded / progressEvent.total;
+            setUploadProgress(progress);
+          },
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "multipart/form-data"
+          }
+        };
 
-    console.log("form data", JSON.stringify(formData, null, 2));
-    console.log("options", options);
+        console.log("form data", JSON.stringify(formData, null, 2));
+        console.log("options", options);
+      })
+      .catch(error => {
+        console.log(error);
+      });
 
     // try {
     //   const response = await axios.post("https://example.com/upload", formData, options);
