@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
-import { View, Text, TouchableOpacity, Button } from "react-native";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { Camera, CameraType } from "expo-camera";
 import { Video } from "expo-av";
 import axios, { AxiosRequestConfig } from "axios";
 import * as FileSystem from "expo-file-system";
+import { LinearProgress, Button } from "react-native-elements";
 
 const VideoRecorder = (): JSX.Element => {
   const [type, setType] = useState(CameraType.back);
@@ -12,7 +13,8 @@ const VideoRecorder = (): JSX.Element => {
   const [recording, setRecording] = useState<boolean>(false);
   const [video, setVideo] = useState<string | null>(null);
   const cameraRef = useRef<Camera | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadProgress, setUploadProgress] = useState<number>(0.7);
+  const [isUploading, setIsUploading] = useState<boolean>(true);
 
   if (!permission) {
     // Camera permissions are still loading
@@ -21,11 +23,21 @@ const VideoRecorder = (): JSX.Element => {
 
   if (!permission.granted) {
     // Camera permissions are not granted yet
-    return (
-      <View style={{ flex: 1 }}>
-        <Text style={{ textAlign: "center" }}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
+    Alert.alert(
+      "Permission to access camera is required",
+      "We require permission to access your camera to record and upload videos",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        {
+          text: "OK",
+          onPress: requestPermission
+        }
+      ],
+      { cancelable: false }
     );
   }
 
@@ -50,7 +62,9 @@ const VideoRecorder = (): JSX.Element => {
   }
 
   const uploadVideo = async () => {
+    setIsUploading(true);
     if (!video) {
+      setIsUploading(false);
       return;
     }
     const fileUri = video;
@@ -62,15 +76,13 @@ const VideoRecorder = (): JSX.Element => {
       encoding: FileSystem.EncodingType.Base64
     })
       .then(binaryData => {
-        // use the binaryData for your desired purpose
-        // console.log("binary data is", binaryData);
+        // use the binaryData
         const formData: any = new FormData();
         formData.append("file", {
-          // binaryData
           file: binaryData
-          // name: fileName,
-          // type: fileType
         });
+
+        const cancelTokenSource = axios.CancelToken.source();
 
         const options: AxiosRequestConfig = {
           onUploadProgress: progressEvent => {
@@ -81,7 +93,8 @@ const VideoRecorder = (): JSX.Element => {
           headers: {
             Accept: "application/json",
             "Content-Type": "multipart/form-data"
-          }
+          },
+          cancelToken: cancelTokenSource.token // add the cancel token to the request options
         };
 
         const file = formData._parts[0][1];
@@ -117,24 +130,39 @@ const VideoRecorder = (): JSX.Element => {
       })
       .catch(error => {
         console.log(error);
+      })
+      .then(() => {
+        setIsUploading(false);
       });
-
-    console.log("uploading video", uploadProgress);
-
-    // try {
-    //   const response = await axios.post("https://example.com/upload", formData, options);
-    //
-    //   if (response.status === 200) {
-    //     setUploadProgress(1);
-    //     setVideo(null);
-    //     setRecording(false);
-    //   } else {
-    //     setUploadProgress(0);
-    //   }
-    // } catch (error) {
-    //   setUploadProgress(0);
-    // }
   };
+
+  const uploadTask = uploadVideo();
+
+  if (isUploading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Uploading video...</Text>
+        <Text>{uploadProgress * 100}%</Text>
+        <LinearProgress
+          style={{ marginVertical: 10 }}
+          value={uploadProgress}
+          variant="determinate"
+        />
+        <Button
+          title="Danger"
+          buttonStyle={{ backgroundColor: "rgba(214, 61, 57, 1)" }}
+          containerStyle={{
+            height: 40,
+            width: 200,
+            marginHorizontal: 50,
+            marginVertical: 10
+          }}
+          titleStyle={{ color: "white", marginHorizontal: 20 }}
+          onPress={() => uploadTask.cancel()}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>

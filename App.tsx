@@ -1,4 +1,4 @@
-import { SafeAreaView } from "react-native";
+import { Alert, SafeAreaView } from "react-native";
 import client from "./apollo/client";
 import CharacterListRework from "./components/CharacterListRework";
 import { ApolloProvider } from "react-apollo";
@@ -7,6 +7,10 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/Home";
 import VideoUploaderScreen from "./screens/VideoUploaderScreen";
 import VideoUploaderCheck from "./screens/VideoUploaderCheck";
+import { Text, View, Button, Platform } from "react-native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import { useEffect, useRef, useState } from "react";
 
 const Stack = createNativeStackNavigator();
 
