@@ -3,29 +3,22 @@ import { FETCH_CHARACTERS } from "../apollo/Queries";
 import React, { useEffect, useRef, useState } from "react";
 import { CharactersQueryType, ICharacter } from "../apollo/Intarfaces";
 import { Avatar, Card, Text } from "react-native-elements";
-import { ActivityIndicator, FlatList, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 
-// <View style={{ flexDirection: "row", alignItems: "center" }}>
-//   <Avatar source={{ uri: item.image }} rounded size={"medium"} />
-//   <View style={{ marginLeft: 10 }}>
-//     <Text>{item.name}</Text>
-//     <Text>{item.species}</Text>
-//   </View>
-// </View>
 const CharacterCard = ({ item }: { item: ICharacter }) => (
   // @ts-ignore
   <Card>
     <Card.Title>{item.name}</Card.Title>
     <Card.Divider />
-    <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+    <View style={styles.characterContainer}>
       <Avatar source={{ uri: item.image }} rounded size={"medium"} />
-      <View style={{ marginLeft: 10, flexDirection: "column" }}>
-        <View style={{ marginLeft: 10, flexDirection: "row", marginBottom: 5 }}>
-          <Text style={{ fontWeight: "bold" }}>Name:</Text>
+      <View style={styles.characterInfoContainer}>
+        <View style={styles.labelValueContainer}>
+          <Text style={styles.label}>Name:</Text>
           <Text>{item.name}</Text>
         </View>
-        <View style={{ marginLeft: 10, flexDirection: "row" }}>
-          <Text style={{ fontWeight: "bold" }}>Species:</Text>
+        <View style={styles.labelValueContainer}>
+          <Text style={styles.label}>Species:</Text>
           <Text>{item.species}</Text>
         </View>
       </View>
@@ -70,11 +63,9 @@ const CharacterListRework: React.FC = () => {
     }
   };
 
-  // console.log("characters", JSON.stringify(characters, null, 2));
-
   const renderFooter = () => {
     if (data && isLoadingMore) {
-      return <ActivityIndicator size={"large"} />;
+      return <ActivityIndicator size={"large"} style={{ marginTop: 15 }} />;
     } else if (showNoMoreMessage) {
       return (
         <Text h4 style={{ textAlign: "center" }}>
@@ -97,15 +88,11 @@ const CharacterListRework: React.FC = () => {
           Error: {error.message}
         </Text>
       ) : (
-        // <Text>Will render here</Text>
         <FlatList
           ref={flatlistRef}
           data={characters}
           renderItem={({ item }) => <CharacterCard item={item} />}
           keyExtractor={item => item.id.toString()}
-          // onEndReached={() => {
-          //   console.log("load more");
-          // }}
           onEndReached={loadMoreHandler}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
@@ -114,5 +101,23 @@ const CharacterListRework: React.FC = () => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  characterContainer: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  characterInfoContainer: {
+    marginLeft: 10,
+    flexDirection: "column"
+  },
+  labelValueContainer: {
+    flexDirection: "row",
+    marginBottom: 5
+  },
+  label: {
+    fontWeight: "bold"
+  }
+});
 
 export default CharacterListRework;
