@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Button } from "react-native";
 import { Camera, CameraType } from "expo-camera";
 import { Video } from "expo-av";
 import axios, { AxiosRequestConfig } from "axios";
@@ -13,6 +13,21 @@ const VideoRecorder = (): JSX.Element => {
   const [video, setVideo] = useState<string | null>(null);
   const cameraRef = useRef<Camera | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+
+  if (!permission) {
+    // Camera permissions are still loading
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    // Camera permissions are not granted yet
+    return (
+      <View style={{ flex: 1 }}>
+        <Text style={{ textAlign: "center" }}>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
 
   const startRecording = async () => {
     if (cameraRef.current) {
