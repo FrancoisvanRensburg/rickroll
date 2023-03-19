@@ -6,6 +6,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/Home";
 import VideoUploaderScreen from "./screens/VideoUploaderScreen";
+import VideoUploaderCheck from "./screens/VideoUploaderCheck";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,7 +18,8 @@ export default function App() {
         <Stack.Navigator>
           <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Overview" }} />
           <Stack.Screen name={"CharacterList"} component={CharacterListRework} />
-          <Stack.Screen name={"VideoUploader"} component={VideoUploaderScreen} />
+          {/*<Stack.Screen name={"VideoUploader"} component={VideoUploaderScreen} />*/}
+          <Stack.Screen name={"VideoUploader"} component={VideoUploaderCheck} />
         </Stack.Navigator>
         {/*<SafeAreaView>*/}
         {/*  <CharacterListRework />*/}
