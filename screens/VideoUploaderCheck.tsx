@@ -167,14 +167,16 @@ const VideoRecorder = (): JSX.Element => {
   if (!recordingEnabled) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <View
-          style={{
-            backgroundColor: "rgba(214, 61, 57, 0.1)",
-            padding: 12
-          }}
-        >
-          <Text style={{ color: "rgba(214, 61, 57, 1)" }}>Error uploading: {uploadError}</Text>
-        </View>
+        {uploadError && (
+          <View
+            style={{
+              backgroundColor: "rgba(214, 61, 57, 0.1)",
+              padding: 12
+            }}
+          >
+            <Text style={{ color: "rgba(214, 61, 57, 1)" }}>Error uploading: {uploadError}</Text>
+          </View>
+        )}
 
         <Button
           title="Record video"
