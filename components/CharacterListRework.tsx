@@ -65,7 +65,12 @@ const CharacterListRework: React.FC = () => {
 
   const renderFooter = () => {
     if (data && isLoadingMore) {
-      return <ActivityIndicator size={"large"} style={{ marginTop: 15 }} />;
+      return (
+        <ActivityIndicator
+          size={"large"}
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        />
+      );
     } else if (showNoMoreMessage) {
       return (
         <Text h4 style={{ textAlign: "center" }}>
@@ -79,9 +84,9 @@ const CharacterListRework: React.FC = () => {
   return (
     <>
       {loading && (
-        <Text h4 style={{ textAlign: "center" }}>
-          Loading...
-        </Text>
+        <View>
+          <ActivityIndicator size={"large"} style={{ marginTop: 15 }} />
+        </View>
       )}
       {error ? (
         <Text h4 style={{ textAlign: "center" }}>
