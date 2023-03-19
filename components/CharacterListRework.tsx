@@ -65,12 +65,7 @@ const CharacterListRework: React.FC = () => {
 
   const renderFooter = () => {
     if (data && isLoadingMore) {
-      return (
-        <ActivityIndicator
-          size={"large"}
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        />
-      );
+      return <ActivityIndicator size={"large"} style={styles.loader} />;
     } else if (showNoMoreMessage) {
       return (
         <Text h4 style={{ textAlign: "center" }}>
@@ -122,6 +117,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "bold"
+  },
+  loader: {
+    marginTop: 10,
+    alignItems: "center",
+    flex: 1
   }
 });
 
