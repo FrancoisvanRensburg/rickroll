@@ -13,8 +13,11 @@ const VideoRecorder = (): JSX.Element => {
   const [recording, setRecording] = useState<boolean>(false);
   const [video, setVideo] = useState<string | null>(null);
   const cameraRef = useRef<Camera | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number>(0.7);
-  const [isUploading, setIsUploading] = useState<boolean>(true);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [cancelUpload, setCancelUpload] = useState(null);
+  const [recordingEnabled, setRecordingEnabled] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   if (!permission) {
     // Camera permissions are still loading
@@ -76,8 +79,7 @@ const VideoRecorder = (): JSX.Element => {
       encoding: FileSystem.EncodingType.Base64
     })
       .then(binaryData => {
-        // use the binaryData
-        const formData: any = new FormData();
+        const formData = new FormData();
         formData.append("file", {
           file: binaryData
         });
@@ -97,22 +99,23 @@ const VideoRecorder = (): JSX.Element => {
           cancelToken: cancelTokenSource.token // add the cancel token to the request options
         };
 
-        const file = formData._parts[0][1];
-        // const { uri } = formData._parts[0][1];
-        //
-        // let body = {
-        //   file: uri
-        // };
+        // const file = formData._parts[0][1];
 
-        console.log("form data", JSON.stringify(formData, null, 2));
-        console.log("options", options);
+        // console.log("form data", JSON.stringify(formData, null, 2));
+        // console.log("options", options);
 
-        axios
-          .post(
-            "https://mvai.qa.onroadvantage.com/api/analyse?models=Passenger%2CFatigueAudio&fps=5&orientation=right",
-            formData,
-            options
-          )
+        const request = axios.post(
+          "https://mvai.qa.onroadvantage.com/api/analyse?models=Passenger%2CFatigueAudio&fps=5&orientation=right",
+          formData,
+          options
+        );
+
+        // create a cancel function that cancels the request when called
+        const cancel = () => {
+          cancelTokenSource.cancel("Request cancelled by user");
+        };
+
+        request
           .then(res => {
             console.log("res", res);
             if (res.status === 200) {
@@ -126,17 +129,71 @@ const VideoRecorder = (): JSX.Element => {
           .catch(error => {
             setUploadProgress(0);
             console.log("error response", error);
+            setUploadError(error.message);
+          })
+          .then(() => {
+            setIsUploading(false);
+            setRecordingEnabled(false);
           });
+
+        // return the cancel function to the caller
+        return cancel;
       })
       .catch(error => {
         console.log(error);
+        setIsUploading(false);
+        setUploadError(error.message);
       })
       .then(() => {
-        setIsUploading(false);
+        setRecordingEnabled(false);
       });
   };
 
-  const uploadTask = uploadVideo();
+  const handleUploadCancel = () => {
+    console.log("entered here to cancel");
+    if (cancelUpload) {
+      // @ts-ignore
+      cancelUpload();
+      setUploadProgress(0);
+    }
+  };
+
+  const handleUpload = async () => {
+    const cancel = await uploadVideo();
+    // @ts-ignore
+    setCancelUpload(cancel);
+  };
+
+  if (!recordingEnabled) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View
+          style={{
+            backgroundColor: "rgba(214, 61, 57, 0.1)",
+            padding: 12
+          }}
+        >
+          <Text style={{ color: "rgba(214, 61, 57, 1)" }}>Error uploading: {uploadError}</Text>
+        </View>
+
+        <Button
+          title="Record video"
+          buttonStyle={{ backgroundColor: "rgba(127, 220, 103, 1)" }}
+          containerStyle={{
+            height: 40,
+            width: 200,
+            marginHorizontal: 50,
+            marginVertical: 10
+          }}
+          titleStyle={{
+            color: "white",
+            marginHorizontal: 20
+          }}
+          onPress={() => setRecordingEnabled(true)}
+        />
+      </View>
+    );
+  }
 
   if (isUploading) {
     return (
@@ -158,7 +215,7 @@ const VideoRecorder = (): JSX.Element => {
             marginVertical: 10
           }}
           titleStyle={{ color: "white", marginHorizontal: 20 }}
-          onPress={() => uploadTask.cancel()}
+          onPress={handleUploadCancel}
         />
       </View>
     );
@@ -201,9 +258,10 @@ const VideoRecorder = (): JSX.Element => {
             </TouchableOpacity>
             <TouchableOpacity
               style={{ padding: 30 }}
-              onPress={async () => {
-                await uploadVideo();
-              }}
+              onPress={handleUpload}
+              // onPress={async () => {
+              //   await uploadVideo();
+              // }}
             >
               <Text>Upload</Text>
             </TouchableOpacity>
