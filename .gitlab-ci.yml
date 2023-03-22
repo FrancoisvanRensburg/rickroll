@@ -1,0 +1,34 @@
+image: node:18
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - apt-get update && apt-get install -y build-essential
+    - npm install
+    - npm install -g expo-cli
+    - expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
+    - expo build:android -t app-bundle
+  artifacts:
+    paths:
+      - android/app/build/outputs/
+
+test:
+  stage: test
+  script:
+    - npm run test
+
+deploy:
+  stage: deploy
+  script:
+    - curl -o ./google-services.json $GOOGLE_SERVICES_JSON_URL
+    - expo upload:android -t app-bundle --key $EXPO_UPLOAD_KEY --token $EXPO_UPLOAD_TOKEN
