@@ -1,16 +1,11 @@
 import { Alert, SafeAreaView } from "react-native";
 import client from "./apollo/client";
-import CharacterListRework from "./components/CharacterListRework";
+import CharacterList from "./components/CharacterList";
 import { ApolloProvider } from "react-apollo";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/Home";
-import VideoUploaderScreen from "./screens/VideoUploaderScreen";
-import VideoUploaderCheck from "./screens/VideoUploaderCheck";
-import { Text, View, Button, Platform } from "react-native";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
-import { useEffect, useRef, useState } from "react";
+import VideoUploaderCheck from "./screens/VideoUploaderScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -21,7 +16,7 @@ export default function App() {
       <ApolloProvider client={client}>
         <Stack.Navigator>
           <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Overview" }} />
-          <Stack.Screen name={"CharacterList"} component={CharacterListRework} />
+          <Stack.Screen name={"CharacterList"} component={CharacterList} />
           {/*<Stack.Screen name={"VideoUploader"} component={VideoUploaderScreen} />*/}
           <Stack.Screen name={"VideoUploader"} component={VideoUploaderCheck} />
         </Stack.Navigator>

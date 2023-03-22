@@ -34,6 +34,21 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 
+const convertFileToBinary = (file: any) => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.readAsArrayBuffer(file);
+
+    fileReader.onload = () => {
+      resolve(fileReader.result);
+    };
+
+    fileReader.onerror = error => {
+      reject(error);
+    };
+  });
+};
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,

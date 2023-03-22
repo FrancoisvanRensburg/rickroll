@@ -26,7 +26,7 @@ const CharacterCard = ({ item }: { item: ICharacter }) => (
   </Card>
 );
 
-const CharacterListRework: React.FC = () => {
+const CharacterList: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const flatlistRef = useRef<any>();
   const [getCharacters, { data, fetchMore, loading, error }] = useLazyQuery<CharactersQueryType>(
@@ -125,4 +125,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default CharacterListRework;
+export default CharacterList;

@@ -1,10 +1,10 @@
 import React from "react";
 import { SafeAreaView } from "react-native";
-import CharacterListRework from "../components/CharacterListRework";
+import CharacterList from "../components/CharacterList";
 const CharacterListScreen: React.FC = () => {
   return (
     <SafeAreaView>
-      <CharacterListRework />
+      <CharacterList />
     </SafeAreaView>
   );
 };
